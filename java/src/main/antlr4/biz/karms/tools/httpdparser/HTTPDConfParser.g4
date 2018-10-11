@@ -17,26 +17,75 @@ parser grammar HTTPDConfParser;
 
 options { tokenVocab=HTTPDConfLexer; }
 
-config      :   (SEA_WS* element | SEA_WS* directive | SEA_WS* COMMENT)+;
-content     :   (SEA_WS* element | SEA_WS* directive | SEA_WS* COMMENT)*;
+config      : (SEA_WS* element | SEA_WS* directive | SEA_WS* COMMENT)+;
+content     : (SEA_WS* element | SEA_WS* directive | SEA_WS* COMMENT)*;
 
 // Directives
-directive   :   SERVER_ROOT serverRootPath
-            |   LISTEN listenAddresses
-            |   DIRECTORY_INDEX directoryIndex
+directive   : SERVER_ROOT         serverRootPath
+            | LISTEN              listenAddresses
+            | DIRECTORY_INDEX     directoryIndex
+            | USER                user
+            | GROUP               group
+            | CHROOT_DIR          chrootDir
+            | SUEXEC              suexec
+            | SERVER_ADMIN        serverAdmin
+            | ALLOW_OVERRIDE      allowOverride
+            | REQUIRE             require
+            | OPTIONS             options_
+            | ERROR_LOG           errorLog
+            | LOG_LEVEL           logLevel
+            | LOG_FORMAT          logFormat
+            | CUSTOM_LOG          customLog
+            | SCRIPT_ALIAS        scriptAlias
+            | TYPES_CONFIG        typesConfig
+            | ADD_TYPE            addType
+            | ADD_OUTPUT_FILTER   addOutputFilter
+            | ADD_DEFAULT_CHARSET addDefaultCharset
+            | MIME_MAGIC_FILE     mimeMagicFile
+            | ENABLE_SEND_FILE    enableSendfile
+            | INDEX_OPTIONS       indexOptions
+            | ALIAS               alias
             ;
-serverRootPath  :   VALUE;
-listenAddresses :   VALUE;
-directoryIndex  :   VALUE;
+serverRootPath  : VALUE;
+listenAddresses : VALUE;
+directoryIndex  : VALUE;
+user            : VALUE;
+group           : VALUE;
+chrootDir       : VALUE;
+suexec          : ONOFF;
+serverAdmin     : VALUE;
+allowOverride     : VALUE;
+require           : VALUE;
+options_          : VALUE;
+errorLog          : VALUE;
+logLevel          : VALUE;
+logFormat         : VALUE;
+customLog         : VALUE;
+scriptAlias       : VALUE;
+typesConfig       : VALUE;
+addType           : VALUE;
+addOutputFilter   : VALUE;
+addDefaultCharset : VALUE;
+mimeMagicFile     : VALUE;
+enableSendfile    : ONOFF;
+indexOptions      : VALUE;
+alias             : VALUE;
 
 // Elements
-ifModuleAttribute   :   MODULE_NAME;
-filesAttribute      :   STRING;
-nameClose           :   EL_IFMODULE | EL_FILES;
-element             :   '<'
-                    (
-                        EL_IFMODULE ifModuleAttribute |
-                        EL_FILES filesAttribute
-                    )
-                    '>' content SEA_WS* '<' '/' nameClose '>';
-
+ifModule    : EL_IFMODULE_ATTR;
+files       : QUOTED_STRING;
+virtualHost : EL_VIRTUAL_HOST_ATTR;
+directory   : (TILDA WS*)? QUOTED_STRING
+| QUOTED_STRING
+| SLASH
+;
+nameClose   : EL_IFMODULE | EL_FILES | EL_VIRTUAL_HOST | EL_DIRECTORY;
+element     : '<'
+               (
+                 EL_IFMODULE ifModule        |
+                 EL_FILES files              |
+                 EL_VIRTUAL_HOST virtualHost |
+                 EL_DIRECTORY directory
+               )
+              '>' content SEA_WS* '<' '/' nameClose '>'
+            ;

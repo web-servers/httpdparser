@@ -17,30 +17,80 @@ Copyright 2018 Michal Karm Babacek
 package biz.karms.tools.httpdparser;
 
 import biz.karms.tools.httpdparser.domain.ServerConfig;
+import biz.karms.tools.httpdparser.domain.directives.AccessFileName;
+import biz.karms.tools.httpdparser.domain.directives.AddCharset;
 import biz.karms.tools.httpdparser.domain.directives.AddDefaultCharset;
+import biz.karms.tools.httpdparser.domain.directives.AddDescription;
+import biz.karms.tools.httpdparser.domain.directives.AddHandler;
+import biz.karms.tools.httpdparser.domain.directives.AddIcon;
+import biz.karms.tools.httpdparser.domain.directives.AddIconByEncoding;
+import biz.karms.tools.httpdparser.domain.directives.AddIconByType;
+import biz.karms.tools.httpdparser.domain.directives.AddLanguage;
 import biz.karms.tools.httpdparser.domain.directives.AddOutputFilter;
 import biz.karms.tools.httpdparser.domain.directives.AddType;
 import biz.karms.tools.httpdparser.domain.directives.Alias;
+import biz.karms.tools.httpdparser.domain.directives.AliasMatch;
 import biz.karms.tools.httpdparser.domain.directives.AllowOverride;
+import biz.karms.tools.httpdparser.domain.directives.BrowserMatch;
 import biz.karms.tools.httpdparser.domain.directives.ChrootDir;
 import biz.karms.tools.httpdparser.domain.directives.CustomLog;
+import biz.karms.tools.httpdparser.domain.directives.DAVLockDB;
+import biz.karms.tools.httpdparser.domain.directives.DefaultIcon;
 import biz.karms.tools.httpdparser.domain.directives.DirectoryIndex;
 import biz.karms.tools.httpdparser.domain.directives.EnableSendfile;
+import biz.karms.tools.httpdparser.domain.directives.ErrorDocument;
 import biz.karms.tools.httpdparser.domain.directives.ErrorLog;
+import biz.karms.tools.httpdparser.domain.directives.ForceLanguagePriority;
 import biz.karms.tools.httpdparser.domain.directives.Group;
+import biz.karms.tools.httpdparser.domain.directives.HeaderName;
+import biz.karms.tools.httpdparser.domain.directives.HostnameLookups;
+import biz.karms.tools.httpdparser.domain.directives.IndexIgnore;
 import biz.karms.tools.httpdparser.domain.directives.IndexOptions;
+import biz.karms.tools.httpdparser.domain.directives.KeepAlive;
+import biz.karms.tools.httpdparser.domain.directives.KeepAliveTimeout;
+import biz.karms.tools.httpdparser.domain.directives.LanguagePriority;
 import biz.karms.tools.httpdparser.domain.directives.Listen;
 import biz.karms.tools.httpdparser.domain.directives.LogFormat;
 import biz.karms.tools.httpdparser.domain.directives.LogLevel;
+import biz.karms.tools.httpdparser.domain.directives.MaxConnectionsPerChild;
+import biz.karms.tools.httpdparser.domain.directives.MaxKeepAliveRequests;
+import biz.karms.tools.httpdparser.domain.directives.MaxMemFree;
 import biz.karms.tools.httpdparser.domain.directives.MimeMagicFile;
 import biz.karms.tools.httpdparser.domain.directives.Options;
+import biz.karms.tools.httpdparser.domain.directives.PidFile;
+import biz.karms.tools.httpdparser.domain.directives.ProxyHTMLEvents;
+import biz.karms.tools.httpdparser.domain.directives.ProxyHTMLLinks;
+import biz.karms.tools.httpdparser.domain.directives.ReadmeName;
+import biz.karms.tools.httpdparser.domain.directives.RequestHeader;
+import biz.karms.tools.httpdparser.domain.directives.RequestReadTimeout;
 import biz.karms.tools.httpdparser.domain.directives.Require;
+import biz.karms.tools.httpdparser.domain.directives.SSLCipherSuite;
+import biz.karms.tools.httpdparser.domain.directives.SSLHonorCipherOrder;
+import biz.karms.tools.httpdparser.domain.directives.SSLPassPhraseDialog;
+import biz.karms.tools.httpdparser.domain.directives.SSLProtocol;
+import biz.karms.tools.httpdparser.domain.directives.SSLProxyCipherSuite;
+import biz.karms.tools.httpdparser.domain.directives.SSLProxyProtocol;
+import biz.karms.tools.httpdparser.domain.directives.SSLRandomSeed;
+import biz.karms.tools.httpdparser.domain.directives.SSLSessionCache;
+import biz.karms.tools.httpdparser.domain.directives.SSLSessionCacheTimeout;
+import biz.karms.tools.httpdparser.domain.directives.SSLStaplingCache;
+import biz.karms.tools.httpdparser.domain.directives.SSLStaplingErrorCacheTimeout;
+import biz.karms.tools.httpdparser.domain.directives.SSLStaplingStandardCacheTimeout;
+import biz.karms.tools.httpdparser.domain.directives.SSLUseStapling;
 import biz.karms.tools.httpdparser.domain.directives.ScriptAlias;
 import biz.karms.tools.httpdparser.domain.directives.ServerAdmin;
 import biz.karms.tools.httpdparser.domain.directives.ServerRoot;
+import biz.karms.tools.httpdparser.domain.directives.ServerSignature;
+import biz.karms.tools.httpdparser.domain.directives.ServerTokens;
+import biz.karms.tools.httpdparser.domain.directives.SetHandler;
 import biz.karms.tools.httpdparser.domain.directives.Suexec;
+import biz.karms.tools.httpdparser.domain.directives.ThreadsPerChild;
+import biz.karms.tools.httpdparser.domain.directives.TimeOut;
+import biz.karms.tools.httpdparser.domain.directives.TransferLog;
 import biz.karms.tools.httpdparser.domain.directives.TypesConfig;
+import biz.karms.tools.httpdparser.domain.directives.UseCanonicalName;
 import biz.karms.tools.httpdparser.domain.directives.User;
+import biz.karms.tools.httpdparser.domain.directives.UserDir;
 import biz.karms.tools.httpdparser.domain.elements.Directory;
 import biz.karms.tools.httpdparser.domain.elements.Files;
 import biz.karms.tools.httpdparser.domain.elements.IfModule;
@@ -67,8 +117,8 @@ public class TestHttpParser {
         assertFalse("ServerConfig was empty.",
                 sc.getChildren().isEmpty());
 
-        int expectedChildren = 37;
-        assertEquals("There were suppsoed to be "+expectedChildren+" children in the root node. " +
+        int expectedChildren = 90;
+        assertEquals("There were suppsoed to be " + expectedChildren + " children in the root node. " +
                         "Seeing a different number usually means there were unexpected tokens. " +
                         "Look at the very beginning of the parsing log.",
                 expectedChildren, sc.getChildren().size());
@@ -344,7 +394,272 @@ public class TestHttpParser {
 
         assertTrue("Alias directive expected here.",
                 sc.getChildren().get(36) instanceof Alias);
-        assertEquals("Alias string is wrong.", "/icons/ \"/usr/share/httpd/icons/\"",
+        assertEquals("Alias string is wrong.", "/icons/  \t \"/usr/share/httpd/icons/\"",
                 sc.getChildren().get(36).getData());
+
+        assertTrue("AccessFileName directive expected here.",
+                sc.getChildren().get(37) instanceof AccessFileName);
+        assertEquals("AccessFileName string is wrong.", ".htaccess",
+                sc.getChildren().get(37).getData());
+
+        assertTrue("AddCharset directive expected here.",
+                sc.getChildren().get(38) instanceof AddCharset);
+        assertEquals("AddCharset string is wrong.", "UTF-32LE .utf32le",
+                sc.getChildren().get(38).getData());
+
+        assertTrue("AddDescription directive expected here.",
+                sc.getChildren().get(39) instanceof AddDescription);
+        assertEquals("AddDescription string is wrong.", "\"GZIP compressed document\" .gz",
+                sc.getChildren().get(39).getData());
+
+        assertTrue("AddHandler directive expected here.",
+                sc.getChildren().get(40) instanceof AddHandler);
+        assertEquals("AddHandler string is wrong.", "type-map var",
+                sc.getChildren().get(40).getData());
+
+        assertTrue("AddIcon directive expected here.",
+                sc.getChildren().get(41) instanceof AddIcon);
+        assertEquals("AddIcon string is wrong.", "/icons/binary.gif .bin .exe",
+                sc.getChildren().get(41).getData());
+
+        assertTrue("AddIconByEncoding directive expected here.",
+                sc.getChildren().get(42) instanceof AddIconByEncoding);
+        assertEquals("AddIconByEncoding string is wrong.", "(CMP,/icons/compressed.gif) x-compress x-gzip",
+                sc.getChildren().get(42).getData());
+
+        assertTrue("AddIconByType directive expected here.",
+                sc.getChildren().get(43) instanceof AddIconByType);
+        assertEquals("AddIconByType string is wrong.", "(TXT,/icons/text.gif) \t text/*",
+                sc.getChildren().get(43).getData());
+
+        assertTrue("AddLanguage directive expected here.",
+                sc.getChildren().get(44) instanceof AddLanguage);
+        assertEquals("AddLanguage string is wrong.", "zh-CN .zh-cn",
+                sc.getChildren().get(44).getData());
+
+        assertTrue("AddType directive expected here.",
+                sc.getChildren().get(45) instanceof AddType);
+        assertEquals("AddType string is wrong.", "application/x-compress .Z",
+                sc.getChildren().get(45).getData());
+
+        assertTrue("AliasMatch directive expected here.",
+                sc.getChildren().get(46) instanceof AliasMatch);
+        assertEquals("AliasMatch string is wrong.", "^/manual(?:/(?:da|de|en|es|fr|ja|ko|pt-br|ru|tr|zh-cn))?(/.*)?$ \"C:/tmp/httpd-2.4.34-win.64/httpd-2.4.34/manual$1\"",
+                sc.getChildren().get(46).getData());
+
+        assertTrue("BrowserMatch directive expected here.",
+                sc.getChildren().get(47) instanceof BrowserMatch);
+        assertEquals("BrowserMatch string is wrong.", "\"Microsoft\tData Access Internet Publishing Provider\" redirect-carefully",
+                sc.getChildren().get(47).getData());
+
+        assertTrue("DAVLockDB directive expected here.",
+                sc.getChildren().get(48) instanceof DAVLockDB);
+        assertEquals("DAVLockDB string is wrong.", "\"C:/tmp/httpd-2.4.34-win.64/httpd-2.4.34/var/DavLock\"",
+                sc.getChildren().get(48).getData());
+
+        assertTrue("DefaultIcon directive expected here.",
+                sc.getChildren().get(49) instanceof DefaultIcon);
+        assertEquals("DefaultIcon string is wrong.", "/icons/unknown.gif",
+                sc.getChildren().get(49).getData());
+
+        assertTrue("ErrorDocument directive expected here.",
+                sc.getChildren().get(50) instanceof ErrorDocument);
+        assertEquals("ErrorDocument string is wrong.", "///////////////////////////////",
+                sc.getChildren().get(50).getData());
+
+        assertTrue("ErrorDocument directive expected here.",
+                sc.getChildren().get(51) instanceof ErrorDocument);
+        assertEquals("ErrorDocument string is wrong.", "400 /error/HTTP_BAD_REQUEST.html.var",
+                sc.getChildren().get(51).getData());
+
+        assertTrue("ForceLanguagePriority directive expected here.",
+                sc.getChildren().get(52) instanceof ForceLanguagePriority);
+        assertEquals("ForceLanguagePriority string is wrong.", "Prefer Fallback",
+                sc.getChildren().get(52).getData());
+
+        assertTrue("HeaderName directive expected here.",
+                sc.getChildren().get(53) instanceof HeaderName);
+        assertEquals("HeaderName string is wrong.", "HEADER.html",
+                sc.getChildren().get(53).getData());
+
+        assertTrue("HostnameLookups directive expected here.",
+                sc.getChildren().get(54) instanceof HostnameLookups);
+        assertEquals("HostnameLookups string is wrong.", "Off",
+                sc.getChildren().get(54).getData());
+
+        assertTrue("IndexIgnore directive expected here.",
+                sc.getChildren().get(55) instanceof IndexIgnore);
+        assertEquals("IndexIgnore string is wrong.", ".??* *~ *# HEADER* README* RCS CVS *,v *,t",
+                sc.getChildren().get(55).getData());
+
+        assertTrue("KeepAlive directive expected here.",
+                sc.getChildren().get(56) instanceof KeepAlive);
+        assertEquals("KeepAlive string is wrong.", "On",
+                sc.getChildren().get(56).getData());
+
+        assertTrue("KeepAliveTimeout directive expected here.",
+                sc.getChildren().get(57) instanceof KeepAliveTimeout);
+        assertEquals("KeepAliveTimeout string is wrong.", "5",
+                sc.getChildren().get(57).getData());
+
+        assertTrue("LanguagePriority directive expected here.",
+                sc.getChildren().get(58) instanceof LanguagePriority);
+        assertEquals("LanguagePriority string is wrong.", "en cs de es fr it ja ko nl pl pt-br ro sv tr",
+                sc.getChildren().get(58).getData());
+
+        assertTrue("MaxConnectionsPerChild directive expected here.",
+                sc.getChildren().get(59) instanceof MaxConnectionsPerChild);
+        assertEquals("MaxConnectionsPerChild string is wrong.", "0",
+                sc.getChildren().get(59).getData());
+
+        assertTrue("MaxKeepAliveRequests directive expected here.",
+                sc.getChildren().get(60) instanceof MaxKeepAliveRequests);
+        assertEquals("MaxKeepAliveRequests string is wrong.", "100",
+                sc.getChildren().get(60).getData());
+
+        assertTrue("MaxMemFree directive expected here.",
+                sc.getChildren().get(61) instanceof MaxMemFree);
+        assertEquals("MaxMemFree string is wrong.", "2048",
+                sc.getChildren().get(61).getData());
+
+        assertTrue("PidFile directive expected here.",
+                sc.getChildren().get(62) instanceof PidFile);
+        assertEquals("PidFile string is wrong.", "\"logs/httpd.pid\"",
+                sc.getChildren().get(62).getData());
+
+        assertTrue("ProxyHTMLEvents directive expected here.",
+                sc.getChildren().get(63) instanceof ProxyHTMLEvents);
+        assertEquals("ProxyHTMLEvents string is wrong.", "onclick ondblclick onmousedown onmouseup        onmouseover onmousemove onmouseout onkeypress       onkeydown onkeyup onfocus onblur onload         onunload onsubmit onreset onselect onchange",
+                sc.getChildren().get(63).getData());
+
+        assertTrue("ProxyHTMLLinks directive expected here.",
+                sc.getChildren().get(64) instanceof ProxyHTMLLinks);
+        assertEquals("ProxyHTMLLinks string is wrong.", "area     href",
+                sc.getChildren().get(64).getData());
+
+        assertTrue("ReadmeName directive expected here.",
+                sc.getChildren().get(65) instanceof ReadmeName);
+        assertEquals("ReadmeName string is wrong.", "README.html",
+                sc.getChildren().get(65).getData());
+
+        assertTrue("RequestHeader directive expected here.",
+                sc.getChildren().get(66) instanceof RequestHeader);
+        assertEquals("RequestHeader string is wrong.", "unset Proxy early",
+                sc.getChildren().get(66).getData());
+
+        assertTrue("RequestReadTimeout directive expected here.",
+                sc.getChildren().get(67) instanceof RequestReadTimeout);
+        assertEquals("RequestReadTimeout string is wrong.", "header=20-40,MinRate=500 body=20,MinRate=500",
+                sc.getChildren().get(67).getData());
+
+        assertTrue("ServerSignature directive expected here.",
+                sc.getChildren().get(68) instanceof ServerSignature);
+        assertEquals("ServerSignature string is wrong.", "Off",
+                sc.getChildren().get(68).getData());
+
+        assertTrue("ServerTokens directive expected here.",
+                sc.getChildren().get(69) instanceof ServerTokens);
+        assertEquals("ServerTokens string is wrong.", "Full",
+                sc.getChildren().get(69).getData());
+
+        assertTrue("SetHandler directive expected here.",
+                sc.getChildren().get(70) instanceof SetHandler);
+        assertEquals("SetHandler string is wrong.", "server-status",
+                sc.getChildren().get(70).getData());
+
+        assertTrue("SSLCipherSuite directive expected here.",
+                sc.getChildren().get(71) instanceof SSLCipherSuite);
+        assertEquals("SSLCipherSuite string is wrong.", "HIGH:MEDIUM:!SSLv3:!kRSA",
+                sc.getChildren().get(71).getData());
+
+        assertTrue("SSLHonorCipherOrder directive expected here.",
+                sc.getChildren().get(72) instanceof SSLHonorCipherOrder);
+        assertEquals("SSLHonorCipherOrder string is wrong.", "on",
+                sc.getChildren().get(72).getData());
+
+        assertTrue("SSLPassPhraseDialog directive expected here.",
+                sc.getChildren().get(73) instanceof SSLPassPhraseDialog);
+        assertEquals("SSLPassPhraseDialog string is wrong.", "builtin",
+                sc.getChildren().get(73).getData());
+
+        assertTrue("SSLProtocol directive expected here.",
+                sc.getChildren().get(74) instanceof SSLProtocol);
+        assertEquals("SSLProtocol string is wrong.", "all -SSLv3",
+                sc.getChildren().get(74).getData());
+
+        assertTrue("SSLProxyCipherSuite directive expected here.",
+                sc.getChildren().get(75) instanceof SSLProxyCipherSuite);
+        assertEquals("SSLProxyCipherSuite string is wrong.", "HIGH:!MEDIUM:!SSLv3:!kRSA",
+                sc.getChildren().get(75).getData());
+
+        assertTrue("SSLProxyProtocol directive expected here.",
+                sc.getChildren().get(76) instanceof SSLProxyProtocol);
+        assertEquals("SSLProxyProtocol string is wrong.", "all -SSLv3",
+                sc.getChildren().get(76).getData());
+
+        assertTrue("SSLRandomSeed directive expected here.",
+                sc.getChildren().get(77) instanceof SSLRandomSeed);
+        assertEquals("SSLRandomSeed string is wrong.", "startup file:/dev/random  512",
+                sc.getChildren().get(77).getData());
+
+        assertTrue("SSLSessionCache directive expected here.",
+                sc.getChildren().get(78) instanceof SSLSessionCache);
+        assertEquals("SSLSessionCache string is wrong.", "\"shmcb:C:/tmp/httpd-2.4.34-win.64/httpd-2.4.34/cache/ssl_scache(512000)\"",
+                sc.getChildren().get(78).getData());
+
+        assertTrue("SSLSessionCacheTimeout directive expected here.",
+                sc.getChildren().get(79) instanceof SSLSessionCacheTimeout);
+        assertEquals("SSLSessionCacheTimeout string is wrong.", "300",
+                sc.getChildren().get(79).getData());
+
+        assertTrue("SSLStaplingCache directive expected here.",
+                sc.getChildren().get(80) instanceof SSLStaplingCache);
+        assertEquals("SSLStaplingCache string is wrong.", "\"shmcb:/ssl_stapling(32768)\"",
+                sc.getChildren().get(80).getData());
+
+        assertTrue("SSLStaplingErrorCacheTimeout directive expected here.",
+                sc.getChildren().get(81) instanceof SSLStaplingErrorCacheTimeout);
+        assertEquals("SSLStaplingErrorCacheTimeout string is wrong.", "600",
+                sc.getChildren().get(81).getData());
+
+        assertTrue("SSLStaplingStandardCacheTimeout directive expected here.",
+                sc.getChildren().get(82) instanceof SSLStaplingStandardCacheTimeout);
+        assertEquals("SSLStaplingStandardCacheTimeout string is wrong.", "3600",
+                sc.getChildren().get(82).getData());
+
+        assertTrue("SSLUseStapling directive expected here.",
+                sc.getChildren().get(83) instanceof SSLUseStapling);
+        assertEquals("SSLUseStapling string is wrong.", "On",
+                sc.getChildren().get(83).getData());
+
+        assertTrue("ThreadsPerChild directive expected here.",
+                sc.getChildren().get(84) instanceof ThreadsPerChild);
+        assertEquals("ThreadsPerChild string is wrong.", "150",
+                sc.getChildren().get(84).getData());
+
+        assertTrue("TimeOut directive expected here.",
+                sc.getChildren().get(85) instanceof TimeOut);
+        assertEquals("TimeOut string is wrong.", "60",
+                sc.getChildren().get(85).getData());
+
+        assertTrue("TransferLog directive expected here.",
+                sc.getChildren().get(86) instanceof TransferLog);
+        assertEquals("TransferLog string is wrong.", "\"logs/ssl_access_log\"",
+                sc.getChildren().get(86).getData());
+
+        assertTrue("TypesConfig directive expected here.",
+                sc.getChildren().get(87) instanceof TypesConfig);
+        assertEquals("TypesConfig string is wrong.", "conf/mime.types",
+                sc.getChildren().get(87).getData());
+
+        assertTrue("UseCanonicalName directive expected here.",
+                sc.getChildren().get(88) instanceof UseCanonicalName);
+        assertEquals("UseCanonicalName string is wrong.", "Off",
+                sc.getChildren().get(88).getData());
+
+        assertTrue("UserDir directive expected here.",
+                sc.getChildren().get(89) instanceof UserDir);
+        assertEquals("UserDir string is wrong.", "disabled",
+                sc.getChildren().get(89).getData());
     }
 }
